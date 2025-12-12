@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Kevin Chenyu Zhang — Spider-Verse Background</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --accent: #ffd166;
+      --bg-dark: #0f1226;
+    }
+    html,body { height:100%; margin:0; background:var(--bg-dark); color:#fff; -webkit-font-smoothing:antialiased; }
+    .container-main{ position:relative; z-index:40; }
+    .canvas-wrap{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; background:transparent; }
+    canvas.v { position:absolute; inset:0; width:100%; height:100%; display:block; }
+
+    /* Halftone overlay */
+    .halftone{ position:fixed; inset:0; z-index:30; pointer-events:none; mix-blend-mode:overlay; opacity:0.85; }
+
+    /* Page UI styles */
+    .header-section{ padding:3.5rem 1rem 1.2rem; text-align:center; z-index:40; position:relative; }
+    .profile-img{ border-radius:50%; border:4px solid rgba(255,255,255,0.08); box-shadow:0 8px 24px rgba(0,0,0,0.7); }
+    .section-title{ color:var(--accent); border-bottom:2px solid rgba(255,209,102,0.08); padding-bottom:0.5rem; margin-bottom:1rem; }
+    .experience-item{ background:rgba(255,255,255,0.03); padding:1rem; border-radius:10px; margin-bottom:1rem; }
+    .skill-tag{ background:rgba(255,255,255,0.06); color:#fff; padding:0.3rem 0.75rem; border-radius:16px; font-size:0.9rem; }
+
+    /* ensure previously muted text is visible: make them white */
+    p.text-muted, .text-muted { color: #ffffff !important; opacity: .92 !important; }
+
+    /* comic jitter */
+    .comic-jitter{ animation: jitter 6s steps(6) infinite; }
+    @keyframes jitter {
+      0% { transform: translate(0,0) } 25% { transform: translate(-1px,1px) } 50% { transform: translate(1px,-1px) } 75% { transform: translate(-1px,-1px) } 100% { transform: translate(0,0) }
+    }
+
+    /* onomatopoeia style */
+    .boom {
+      font-family: 'Impact', Arial Black, sans-serif;
+      font-weight:900;
+      text-transform:uppercase;
+      z-index:45;
+      position:absolute;
+      pointer-events:none;
+      color:#fff;
+      -webkit-text-stroke: 2px rgba(0,0,0,0.7);
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+    }
+
+    /* reduced-motion support */
+    @media (prefers-reduced-motion: reduce) {
+      .canvas-wrap, .halftone { display:none !important; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Canvas background layers (we use three for chromatic split + one for composite) -->
+  <div class="canvas-wrap" aria-hidden="true">
+    <canvas id="canvas-base" class="v"></canvas>    <!-- base composite -->
+    <canvas id="canvas-r" class="v"></canvas>       <!-- red offset -->
+    <canvas id="canvas-g" class="v"></canvas>       <!-- green offset -->
+    <canvas id="canvas-b" class="v"></canvas>       <!-- blue offset -->
+    <canvas id="canvas-panels" class="v"></canvas>  <!-- panels / shards -->
+  </div>
+
+  <!-- Halftone overlay (SVG pattern for crispness) -->
+  <svg class="halftone" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="z-index:31;">
+    <defs>
+      <pattern id="dots" patternUnits="userSpaceOnUse" width="8" height="8">
+        <rect width="8" height="8" fill="transparent"></rect>
+        <circle cx="4" cy="4" r="1.2" fill="rgba(255,255,255,0.03)"></circle>
+      </pattern>
+    </defs>
+    <rect x="0" y="0" width="100%" height="100%" fill="url(#dots)"></rect>
+  </svg>
+
+  <!-- Onomatopoeia samples (positioned by JS) -->
+  <div id="booms" style="position:fixed; inset:0; z-index:45; pointer-events:none;"></div>
+
+  <div class="container container-main">
+    <section class="header-section">
+      <h1 class="fw-bold display-4 mb-2 comic-jitter">Kevin Chenyu Zhang</h1>
+      <p class="lead mb-2" style="color: rgba(255,255,255,0.95);">Freshman in Engineering with Extended Major in Artificial Intelligence | HKUST</p>
+      <!-- This is the block you asked to be visible — text-muted is force-set to white above -->
+      <p class="text-muted">Major in Engineering with Extended Major in Artificial Intelligence <br> Expected Graduation: 2029</p>
+    </section>
+
+    <div class="row my-5">
+      <div class="col-md-3 text-center">
+        <img src="https://i.imgur.com/4Auvef1.jpg" class="img-fluid profile-img mb-3" alt="Profile Photo" style="width:200px;height:200px;object-fit:cover;">
+        <div class="contact-links text-white-50">
+          <p><i class="fas fa-envelope me-2"></i><a href="mailto:czhangew@connect.ust.hk" style="color:inherit;text-decoration:none;">czhangew@connect.ust.hk</a></p>
+          <p><i class="fas fa-phone me-2"></i><a href="tel:+85246728361" style="color:inherit;text-decoration:none;">+852 4672 8361</a></p>
+        </div>
+      </div>
+
+      <div class="col-md-9">
+        <h2 class="section-title fw-bold"><i class="fas fa-user me-2"></i>Profile Summary</h2>
+        <p class="lead">A first-year student... (略)</p>
+        <!-- other content omitted for brevity -->
+      </div>
+    </div>
+
+  </div>
+
+<script>
+/* CONFIG - tweak these values to control complexity/performance */
+const CONFIG = {
+  backgroundImageSrc: '/mnt/data/spi3.jpg', // <-- 替换为你的图片路径或 URL
+  PANEL_COUNT: 9,            // number of comic panels / shards
+  PARTICLE_COUNT: 80,        // energy particles
+  ABERRATION_OFFSET: 6,      // max px shift for RGB split
+  HALFTONE_DENSITY: 0.9,
+  reducedMotion: false       // set true to disable animation
+};
+
+/* Safety: if prefers-reduced-motion or user set reducedMotion, disable heavy animation */
+if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  CONFIG.reducedMotion = true;
+}
+
+/* Canvas setup */
+const canvBase = document.getElementById('canvas-base');
+const canvR = document.getElementById('canvas-r');
+const canvG = document.getElementById('canvas-g');
+const canvB = document.getElementById('canvas-b');
+const canvPanels = document.getElementById('canvas-panels');
+const canvases = [canvBase, canvR, canvG, canvB, canvPanels];
+const ctxBase = canvBase.getContext('2d');
+const ctxR = canvR.getContext('2d');
+const ctxG = canvG.getContext('2d');
+const ctxB = canvB.getContext('2d');
+const ctxPanels = canvPanels.getContext('2d');
+
+let W = innerWidth, H = innerHeight;
+function resize() {
+  W = innerWidth; H = innerHeight;
+  canvases.forEach(c => { c.width = W; c.height = H; });
+}
+resize();
+window.addEventListener('resize', () => {
+  resize();
+  initPanels();
+});
+
+/* Load background image */
+const bgImg = new Image();
+bgImg.crossOrigin = 'anonymous';
+bgImg.src = spi3.jpg;
+bgImg.onload = () => {
+  // start animation after image ready
+  init();
+};
+
+/* Utility functions */
+const rand = (a,b)=> a + Math.random()*(b-a);
+
+/* Panels (shattered comic panels) */
+let panels = [];
+function initPanels(){
+  panels = [];
+  const centerX = W*0.5, centerY = H*0.45;
+  const maxR = Math.min(W,H)*0.9;
+  for(let i=0;i<CONFIG.PANEL_COUNT;i++){
+    const angle = (Math.PI*2/CONFIG.PANEL_COUNT)*i + rand(-0.3,0.3);
+    const dist = rand(maxR*0.05, maxR*0.6);
+    const w = rand(W*0.22, W*0.45);
+    const h = rand(H*0.18, H*0.45);
+    panels.push({
+      x:centerX + Math.cos(angle)*dist,
+      y:centerY + Math.sin(angle)*dist,
+      angle: angle + rand(-0.5,0.5),
+      w: w, h:h,
+      vx: rand(-2,2), vy: rand(-2,2), vr: rand(-0.02,0.02),
+      style: i % 3, // 0 noir,1 watercolor,2 anime
+      shake: rand(0.5,2),
+      scale: rand(0.9,1.05)
+    });
+  }
+}
+initPanels();
+
+/* Particles for cosmic energy */
+let particles = [];
+function initParticles(){
+  particles = [];
+  for(let i=0;i<CONFIG.PARTICLE_COUNT;i++){
+    particles.push({
+      x: W*0.5 + rand(-120,120),
+      y: H*0.45 + rand(-80,80),
+      vx: rand(-2,2), vy: rand(-2,2),
+      r: rand(1,6),
+      hue: rand(180,320),
+      life: rand(60,300)
+    });
+  }
+}
+initParticles();
+
+/* Onomatopoeia pool */
+const boomsEl = document.getElementById('booms');
+const BOOM_WORDS = ['WHAM!', 'BAM!', 'KRAK!', 'ZAP!', 'SNIKT!'];
+function spawnBoom(x,y,txt,size,ttl=160){
+  const el = document.createElement('div');
+  el.className = 'boom';
+  el.style.left = (x - size*0.5) + 'px';
+  el.style.top = (y - size*0.5) + 'px';
+  el.style.fontSize = size + 'px';
+  el.style.opacity = '0';
+  el.textContent = txt;
+  boomsEl.appendChild(el);
+  // animate via JS
+  let t=0;
+  function frame(){
+    t++;
+    const progress = t/ttl;
+    el.style.transform = `translateY(${ -40*progress }px) scale(${1 + 0.2*progress}) rotate(${Math.sin(progress*6)*8}deg)`;
+    el.style.opacity = String(Math.min(1, progress*1.6));
+    if(t < ttl){
+      requestAnimationFrame(frame);
+    } else {
+      el.remove();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* Main draw loop */
+let time = 0;
+function drawFrame(){
+  if(CONFIG.reducedMotion) return; // skip heavy animation if reduced
+
+  time += 0.016;
+
+  // --- draw base composite: background image with vignette ---
+  ctxBase.clearRect(0,0,W,H);
+  // draw blurred + scaled background to fill screen
+  const imgAR = bgImg.width / bgImg.height;
+  const screenAR = W / H;
+  let dw, dh, dx, dy;
+  if(imgAR > screenAR){
+    dh = H; dw = dh * imgAR; dx = (W - dw)/2; dy = 0;
+  } else {
+    dw = W; dh = dw / imgAR; dx = 0; dy = (H - dh)/2;
+  }
+  // slightly rotate or offset for dynamism
+  ctxBase.save();
+  ctxBase.globalAlpha = 1;
+  ctxBase.drawImage(bgImg, dx, dy, dw, dh);
+
+  // darken center and add subtle vignette
+  const vg = ctxBase.createRadialGradient(W*0.5, H*0.45, Math.min(W,H)*0.1, W*0.5, H*0.45, Math.max(W,H));
+  vg.addColorStop(0, 'rgba(255,255,255,0.0)');
+  vg.addColorStop(0.4, 'rgba(6,6,12,0.05)');
+  vg.addColorStop(1, 'rgba(4,4,12,0.6)');
+  ctxBase.fillStyle = vg;
+  ctxBase.fillRect(0,0,W,H);
+  ctxBase.restore();
+
+  // --- draw panels (shattered comic panels) to panels canvas ---
+  ctxPanels.clearRect(0,0,W,H);
+  panels.forEach((p,idx)=>{
+    // update motion
+    p.x += p.vx * (0.7 + Math.sin(time+p.angle)*0.2);
+    p.y += p.vy * (0.7 + Math.cos(time+p.angle)*0.2);
+    p.angle += p.vr;
+    // panel transform
+    ctxPanels.save();
+    ctxPanels.translate(p.x, p.y);
+    ctxPanels.rotate(p.angle);
+    ctxPanels.scale(p.scale, p.scale);
+
+    // panel shape (rounded rect)
+    const w = p.w, h = p.h;
+    const r = Math.min(22, Math.min(w,h)*0.08);
+    roundRectPath(ctxPanels, -w/2, -h/2, w, h, r);
+
+    // clipping region: draw different style within each panel
+    ctxPanels.clip();
+
+    // draw portion of background into panel with slight parallax
+    const sx = dx + (p.x/W)* (dw - W)*0.6 - w*0.2;
+    const sy = dy + (p.y/H)* (dh - H)*0.6 - h*0.2;
+    ctxPanels.drawImage(bgImg, sx, sy, dw*0.7 + w*0.2, dh*0.7 + h*0.2, -w/2, -h/2, w, h);
+
+    // apply style overlays per panelStyle
+    if(p.style === 0){
+      // noir: desaturate + strong contrast
+      applyNoir(ctxPanels, -w/2, -h/2, w, h);
+    } else if(p.style === 1){
+      // watercolor: color wash + soft blur (simulate by drawing translucent color)
+      applyWatercolorWash(ctxPanels, -w/2, -h/2, w, h, time + idx);
+    } else {
+      // anime cel: posterize + strong outlines
+      applyAnimeCel(ctxPanels, -w/2, -h/2, w, h);
+    }
+
+    // border
+    ctxPanels.strokeStyle = `rgba(255,255,255,0.12)`;
+    ctxPanels.lineWidth = 3;
+    ctxPanels.stroke();
+    ctxPanels.restore();
+
+    // occasional small onomatopoeia spawn near panel edge
+    if(Math.random() < 0.003){
+      spawnBoom(p.x + rand(-p.w*0.3,p.w*0.3), p.y + rand(-p.h*0.3,p.h*0.3), BOOM_WORDS[(idx)%BOOM_WORDS.length], rand(36,120), 140);
+    }
+  });
+
+  // --- particles (energy) on base ctx for glow (drawn thin layer) ---
+  ctxBase.save();
+  ctxBase.globalCompositeOperation = 'lighter';
+  particles.forEach((pt,i)=>{
+    pt.x += pt.vx * (0.4 + Math.sin(time*0.6 + i)*0.2);
+    pt.y += pt.vy * (0.4 + Math.cos(time*0.5 + i)*0.2);
+    pt.life -= 0.6;
+    if(pt.life < 0){
+      pt.x = W*0.5 + rand(-140,140); pt.y = H*0.45 + rand(-100,100); pt.vx = rand(-2,2); pt.vy = rand(-2,2); pt.life = rand(60,300);
+    }
+    const g = ctxBase.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,pt.r*10);
+    g.addColorStop(0, `hsla(${pt.hue},95%,65%,0.9)`);
+    g.addColorStop(0.6, `hsla(${pt.hue},85%,55%,0.2)`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctxBase.fillStyle = g;
+    ctxBase.beginPath(); ctxBase.arc(pt.x,pt.y, pt.r*2, 0, Math.PI*2); ctxBase.fill();
+  });
+  ctxBase.restore();
+
+  // --- chromatic aberration: draw three offset layers from base (using small offsets) ---
+  // copy base canvas content onto r/g/b with different blend and offsets
+  ctxR.clearRect(0,0,W,H); ctxG.clearRect(0,0,W,H); ctxB.clearRect(0,0,W,H);
+  const off = CONFIG.ABERRATION_OFFSET;
+  // red shifted left/up
+  ctxR.globalAlpha = 0.7;
+  ctxR.drawImage(canvBase, -off*0.5, -off*0.4, W + off, H + off);
+  // green center
+  ctxG.globalAlpha = 0.85;
+  ctxG.drawImage(canvBase, 0, 0, W, H);
+  // blue shifted right/down
+  ctxB.globalAlpha = 0.62;
+  ctxB.drawImage(canvBase, off*0.6, off*0.5, W + off, H + off);
+
+  // final composite: panels drawn on top are already separate canvas
+
+  requestAnimationFrame(drawFrame);
+}
+
+/* Helpers: rounded rect path */
+function roundRectPath(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+/* Faux style functions (simple simulated filters) */
+function applyNoir(ctx, x,y,w,h){
+  // draw translucent dark overlay and desaturate by drawing a semi-white low-opacity layer
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(x,y,w,h);
+  // add high-contrast line art effect: stroke edges via composite
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.filter = 'contrast(130%) saturate(10%)';
+  ctx.drawImage(ctx.canvas, x+0.3, y+0.3, w, h, x, y, w, h); // slight re-draw (cheap trick)
+  ctx.filter = 'none';
+  ctx.restore();
+}
+
+function applyWatercolorWash(ctx, x,y,w,h, t){
+  // watercolor simulation: translucent color washes + ripple
+  const hue = 200 + Math.sin(t*0.6)*40;
+  ctx.fillStyle = `hsla(${hue},70%,60%,0.12)`;
+  ctx.fillRect(x,y,w,h);
+  // soft noise: draw semi-opaque circles
+  for(let i=0;i<12;i++){
+    const cx = x + Math.random()*w;
+    const cy = y + Math.random()*h;
+    const r = Math.random()*Math.min(w,h)*0.18;
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+    g.addColorStop(0, `hsla(${hue+rand(-20,20)},80%,60%,0.08)`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function applyAnimeCel(ctx, x,y,w,h){
+  // posterize effect imitation: lower colors & draw simple outline
+  // quick posterize: draw a semi-transparent white overlay then multiply
+  ctx.save();
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.fillRect(x,y,w,h);
+  ctx.globalCompositeOperation = 'source-over';
+  // thin cell-shading lines
+  ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x + w*0.08, y + h*0.85);
+  ctx.lineTo(x + w*0.92, y + h*0.85);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* init + start */
+function init(){
+  // if reducedMotion requested, don't animate heavy components
+  if(CONFIG.reducedMotion) {
+    // draw a static composite once
+    ctxBase.drawImage(bgImg, 0, 0, W, H);
+    ctxPanels.drawImage(bgImg, 0, 0, W, H);
+    return;
+  }
+
+  initPanels();
+  initParticles();
+
+  // spawn a few booms initially
+  panels.slice(0,3).forEach((p,i)=>{
+    spawnBoom(p.x + rand(-20,20), p.y + rand(-20,20), BOOM_WORDS[i%BOOM_WORDS.length], rand(40,120), 150);
+  });
+
+  // start frame loop
+  requestAnimationFrame(drawFrame);
+}
+
+/* small interaction to emphasize collider center on mouse click */
+window.addEventListener('click', (e)=>{
+  // generate an explosion: push particles outward and spawn onomatopoeia
+  const cx = e.clientX, cy = e.clientY;
+  for(let i=0;i<18;i++){
+    particles.push({
+      x: cx + rand(-12,12),
+      y: cy + rand(-12,12),
+      vx: rand(-6,6), vy: rand(-6,6),
+      r: rand(1,8),
+      hue: rand(160,320),
+      life: rand(40,180)
+    });
+  }
+  spawnBoom(cx + rand(-60,60), cy + rand(-60,60), BOOM_WORDS[Math.floor(Math.random()*BOOM_WORDS.length)], rand(48,140), 160);
+});
+
+/* small initial call to resize canvases */
+window.dispatchEvent(new Event('resize'));
+
+</script>
+
+</body>
+</html>

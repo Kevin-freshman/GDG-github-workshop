@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chenyu Zhang, Kevin - Resume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+      /* Basic page styles */
+      html, body { height: 100%; }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #0f1226; /* dark base so colors pop */
+        color: #fff;
+        margin: 0;
+        overflow-x: hidden;
+      }
+
+      /* Header/hero area sits above the animated canvas */
+      .header-section {
+        position: relative;
+        z-index: 10;
+        color: white;
+        padding: 4rem 0 2rem;
+        text-align: center;
+      }
+
+      /* Canvas layers for the Spider-Verse effect (three RGB layers) */
+      .canvas-wrap {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      canvas.verse-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      /* Halftone dot overlay */
+      .halftone {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.03) 0 1px, transparent 1px),
+                          radial-gradient(circle at 80% 80%, rgba(255,255,255,0.02) 0 1px, transparent 1px);
+        background-size: 10px 10px, 14px 14px;
+        mix-blend-mode: overlay;
+        animation: halftoneShift 8s linear infinite;
+      }
+      @keyframes halftoneShift {
+        0% { transform: translate3d(0,0,0); opacity: 0.9 }
+        50% { transform: translate3d(30px,-20px,0) scale(1.02); opacity: 0.75 }
+        100% { transform: translate3d(0,0,0); opacity: 0.9 }
+      }
+
+      /* Chromatic split layers: slight offsets and blend */
+      .rgb-layer.r { filter: none; mix-blend-mode: screen; opacity: 0.95; }
+      .rgb-layer.g { filter: none; mix-blend-mode: screen; opacity: 0.8; }
+      .rgb-layer.b { filter: none; mix-blend-mode: screen; opacity: 0.7; }
+
+      /* Page containers above canvas */
+      .container-main { position: relative; z-index: 20; }
+
+      /* Resume card styles adjusted for dark background */
+      .profile-img { border-radius: 50%; border: 5px solid rgba(255,255,255,0.12); box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
+      .section-title { color: #ffd166; border-bottom: 2px solid rgba(255,209,102,0.08); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+      .experience-item, .education-item { background: rgba(255,255,255,0.03); padding: 1.2rem; margin-bottom: 1rem; border-radius: 10px; }
+      .skill-tag { background: rgba(255,255,255,0.06); color: #fff; padding: 0.4rem 0.8rem; border-radius: 18px; font-size: 0.9rem; }
+
+      footer { background: transparent; color: rgba(255,255,255,0.6); padding: 1rem 0; margin-top: 2rem; position: relative; z-index: 20; }
+
+      /* Small responsive tweaks */
+      @media (max-width: 768px) {
+        .header-section { padding: 2.5rem 1rem; }
+      }
+
+      /* Comic-style jitter for certain elements */
+      .comic-jitter { animation: jitter 6s steps(6) infinite; }
+      @keyframes jitter {
+        0% { transform: translate(0,0) }
+        25% { transform: translate(-1px,1px) }
+        50% { transform: translate(1px,-1px) }
+        75% { transform: translate(-1px,-1px) }
+        100% { transform: translate(0,0) }
+      }
+
+    </style>
+  </head>
+  <body>
+    <!-- Canvas background layers -->
+    <div class="canvas-wrap">
+      <canvas id="canvas-r" class="verse-canvas rgb-layer r"></canvas>
+      <canvas id="canvas-g" class="verse-canvas rgb-layer g"></canvas>
+      <canvas id="canvas-b" class="verse-canvas rgb-layer b"></canvas>
+    </div>
+    <div class="halftone"></div>
+
+    <div class="container container-main">
+      <!-- Header Section -->
+      <section class="header-section text-center">
+        <div class="container">
+          <h1 class="fw-bold display-4 mb-2 comic-jitter">Kevin Chenyu Zhang</h1>
+          <p class="lead mb-2" style="color: rgba(255,255,255,0.9);">Freshman in Engineering with Extended Major in Artificial Intelligence | HKUST</p>
+          <p class="mb-0" style="color: rgba(255,255,255,0.75);">studying • coding • exploring AI • enjoying life</p>
+        </div>
+      </section>
+
+      <div class="row my-5">
+        <!-- Sidebar: Photo and Contact -->
+        <div class="col-md-3 text-center mb-4 mb-md-0">
+          <img src="https://i.imgur.com/4Auvef1.jpg" class="img-fluid profile-img mb-3" alt="Profile Photo" style="width: 200px; height: 200px; object-fit: cover;">
+          <div class="contact-links text-white-50">
+            <p><i class="fas fa-envelope me-2"></i><a href="mailto:czhangew@connect.ust.hk" style="color:inherit; text-decoration:none;">czhangew@connect.ust.hk</a></p>
+            <p><i class="fas fa-phone me-2"></i><a href="tel:+85246728361" style="color:inherit; text-decoration:none;">+852 4672 8361</a></p>
+            <p><i class="fab fa-rednote me-2"></i><a href="https://www.xiaohongshu.com/user/profile/5e3e533b0000000001009adc?xsec_token=ABJwom2Wj3LgHhhRKYYSd7nS63ZtLwUDFqMIPJSqV5ymc=&xsec_source=pc_search/" style="color:inherit; text-decoration:none;">RedNote</a></p>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+          <!-- Profile Summary -->
+          <div class="mb-4">
+            <h2 class="section-title fw-bold"><i class="fas fa-user me-2"></i>Profile Summary</h2>
+            <p class="lead">A first-year university student majoring in Engineering with an extended major in Artificial Intelligence at HKUST. Backed by sufficient volunteering experience and knowledge of computer engineering theories, principles, specifications, and standards. Seeking an internship in algorithms and software development to further enhance my skills while contributing to impactful projects in a dynamic environment.</p>
+          </div>
+
+          <!-- Skills -->
+          <div class="mb-4">
+            <h2 class="section-title fw-bold"><i class="fas fa-cogs me-2"></i>Key Skills</h2>
+            <div class="row">
+              <div class="col-md-6">
+                <h5 class="fw-bold">Languages</h5>
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="skill-tag">Native Mandarin</span>
+                  <span class="skill-tag">Fluent English</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <h5 class="fw-bold">Programming & Software</h5>
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="skill-tag">C++</span>
+                  <span class="skill-tag">Python</span>
+                  <span class="skill-tag">Microsoft Excel</span>
+                  <span class="skill-tag">Microsoft Word</span>
+                  <span class="skill-tag">Microsoft PowerPoint</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Education -->
+          <div class="mb-4">
+            <h2 class="section-title fw-bold"><i class="fas fa-graduation-cap me-2"></i>Education</h2>
+            <div class="education-item">
+              <h5 class="fw-bold">Bachelor of Engineering</h5>
+              <p class="mb-1"><strong>Hong Kong University of Science and Technology (HKUST)</strong></p>
+              <p class="text-muted mb-0">Major in Engineering with Extended Major in Artificial Intelligence<br>Expected Graduation: 2029</p>
+            </div>
+          </div>
+
+          <!-- Work Experience -->
+          <div class="mb-4">
+            <h2 class="section-title fw-bold"><i class="fas fa-briefcase me-2"></i>Work Experience</h2>
+            <div class="experience-item">
+              <h5 class="fw-bold">New Media Marketing Officer</h5>
+              <p class="text-muted mb-1"><strong>Huaxia Eye Hospital Group Co., Ltd.</strong> | July 2025 – August 2025</p>
+              <ul class="mb-0">
+                <li>Analyzed data from Douyin Ocean Engine to optimize operational strategies.</li>
+                <li>Became familiar with marketing tools like Baidu Qiaocang and intelligent website building tools like Baidu Jimuyu.</li>
+                <li>Sharpened business acumen and data-driven decision-making skills, while strengthening ability to apply technical tools to real-world business challenges.</li>
+              </ul>
+            </div>
+            <div class="experience-item">
+              <h5 class="fw-bold">Operations Assistant</h5>
+              <p class="text-muted mb-1"><strong>Xiamen Siming Reef Medical Beauty Clinic Co., Ltd.</strong> | June 2025 – July 2025</p>
+              <ul class="mb-0">
+                <li>Responsible for social media content planning, user engagement management, and online campaign execution.</li>
+                <li>Analyzed data to optimize operational strategies.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Projects (updated with your new entries) -->
+          <div class="mb-4">
+            <h2 class="section-title fw-bold"><i class="fas fa-project-diagram me-2"></i>Projects</h2>
+
+            <div class="experience-item">
+              <h5 class="fw-bold">HKUST RoboMaster Internal Robot Design Contest (Project: ColorCapture)</h5>
+              <p class="text-muted mb-1"><strong>Computer Vision Lead | Team Group 1</strong> \hfill Fall 2025</p>
+              <ul>
+                <li><strong>Achievement:</strong> Won 2nd Place out of multiple internal teams in a competitive robotics tournament.</li>
+                <li>Led the Computer Vision module for the robot; developed algorithms using Python and OpenCV to enable real-time color detection and object tracking.</li>
+                <li>Designed the visual recognition system to identify specific colored game elements (balls/buckets), significantly improving the robot's autonomous capture efficiency.</li>
+                <li>Collaborated with mechanical and hardware teammates to integrate vision data with the robot's motion control system.</li>
+              </ul>
+            </div>
+
+            <div class="experience-item">
+              <h5 class="fw-bold">Avenir-HKU Web3.0 Quantitative Trading Challenge 2025</h5>
+              <p class="text-muted mb-1"><strong>Team Captain | Team 48</strong> \hfill Late 2025</p>
+              <ul>
+                <li>Led a team of students in a high-level quantitative trading hackathon focused on Web3 and crypto markets.</li>
+                <li>Coordinated team strategy and development timeline; oversaw the implementation of quantitative models to analyze market data.</li>
+                <li>Gained practical exposure to blockchain concepts, decentralized finance (DeFi) trading strategies, and data analysis in a simulated market environment.</li>
+              </ul>
+            </div>
+
+            <div class="experience-item">
+              <h5 class="fw-bold">GDG GitHub Workshop</h5>
+              <p class="text-muted mb-1"><strong>Workshop Creator / Contributor</strong></p>
+              <ul>
+                <li>Created and maintained a comprehensive documentation website (via GitHub Pages) for a Google Developer Groups (GDG) GitHub workshop.</li>
+                <li>Demonstrated proficiency in Git/GitHub workflows and Markdown documentation.</li>
+                <li>(Optional) Facilitated sessions to help peers understand version control fundamentals.</li>
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <footer class="text-center">
+        <div class="container">
+          <p class="mb-0">&copy; 2025 Kevin Chenyu Zhang. All rights reserved. | Built with ❤️ and Bootstrap</p>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Spider-Verse style animated particle system with RGB split layers + jitter + halftone overlay
+      (function(){
+        const canvases = [
+          document.getElementById('canvas-r'),
+          document.getElementById('canvas-g'),
+          document.getElementById('canvas-b')
+        ];
+
+        let width = innerWidth, height = innerHeight;
+        canvases.forEach(c => { c.width = width; c.height = height; });
+        const ctxs = canvases.map(c => c.getContext('2d'));
+
+        const PARTICLE_COUNT = Math.floor(Math.max(60, (width * height) / 12000));
+        const particles = [];
+
+        function rand(a,b){ return Math.random()*(b-a)+a }
+        function initParticles(){
+          particles.length = 0;
+          for(let i=0;i<PARTICLE_COUNT;i++){
+            particles.push({
+              x: Math.random()*width,
+              y: Math.random()*height,
+              vx: rand(-0.3,0.3),
+              vy: rand(-0.3,0.6),
+              size: rand(1,6),
+              hue: Math.floor(rand(0,360)),
+              life: rand(60,600)
+            });
+          }
+        }
+
+        initParticles();
+
+        let t=0;
+        function draw(){
+          t+=0.016;
+          // clear with a subtle transparent fill to create trails
+          ctxs.forEach((ctx,i)=>{
+            ctx.clearRect(0,0,width,height);
+            // subtle global tint per layer
+            ctx.fillStyle = 'rgba(6,6,12,0.12)';
+            ctx.fillRect(0,0,width,height);
+          });
+
+          // update and draw particles
+          particles.forEach(p=>{
+            // simple noise-like motion + slight gravity
+            p.vx += Math.sin((p.y*0.01)+t*0.5)*0.002;
+            p.vy += Math.cos((p.x*0.01)+t*0.3)*0.002;
+            p.x += p.vx + Math.sin(t*0.2 + p.hue)*0.3;
+            p.y += p.vy;
+            p.life -= 1;
+            if(p.y > height + 20 || p.x < -50 || p.x > width+50 || p.life <= 0){
+              p.x = Math.random()*width; p.y = -10; p.vx = rand(-0.3,0.3); p.vy = rand(0.1,0.6); p.life = rand(60,600);
+            }
+
+            // draw to each rgb canvas with small offset for chromatic split
+            // offsets: r:-2,g:0,b:+2 with extra jitter
+            const offsets = [-2, 0, 2];
+            ctxs.forEach((ctx, idx)=>{
+              const jitterX = Math.sin(t*2 + p.hue + idx)*0.6;
+              const jitterY = Math.cos(t*1.5 + p.hue + idx)*0.4;
+              const x = p.x + offsets[idx] + jitterX;
+              const y = p.y + jitterY;
+
+              // particle glow
+              const grad = ctx.createRadialGradient(x, y, 0, x, y, p.size*6);
+              // hue shift slightly per layer for a richer effect
+              const h = (p.hue + idx*16) % 360;
+              grad.addColorStop(0, `hsla(${h},100%,65%,0.85)`);
+              grad.addColorStop(0.2, `hsla(${h},90%,55%,0.45)`);
+              grad.addColorStop(0.6, `hsla(${h},80%,45%,0.09)`);
+              grad.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.fillStyle = grad;
+              ctx.beginPath(); ctx.arc(x,y,p.size,0,Math.PI*2); ctx.fill();
+
+              // comic-style outline dot occasionally
+              if((p.life % 120) < 2){
+                ctx.beginPath(); ctx.arc(x,y,p.size*1.6,0,Math.PI*2); ctx.strokeStyle = `hsla(${h},60%,60%,0.6)`; ctx.lineWidth=1; ctx.stroke();
+              }
+            });
+          });
+
+          // connecting lines between nearest colorful particles (drawn faintly on middle layer)
+          const ctxMid = ctxs[1];
+          ctxMid.save();
+          ctxMid.globalCompositeOperation = 'lighter';
+          for(let i=0;i<Math.min(120, particles.length); i++){
+            const a = particles[i];
+            for(let j=i+1;j<Math.min(i+6, particles.length); j++){
+              const b = particles[(i+j)%particles.length];
+              const dx = a.x - b.x, dy = a.y - b.y;
+              const dist = Math.sqrt(dx*dx + dy*dy);
+              if(dist < 120){
+                const alpha = 0.12*(1 - dist/120);
+                const hue = (a.hue + b.hue)/2;
+                ctxMid.beginPath();
+                ctxMid.strokeStyle = `hsla(${hue},80%,60%,${alpha})`;
+                ctxMid.lineWidth=0.6; ctxMid.moveTo(a.x,a.y); ctxMid.lineTo(b.x,b.y); ctxMid.stroke();
+              }
+            }
+          }
+          ctxMid.restore();
+
+          requestAnimationFrame(draw);
+        }
+
+        draw();
+
+        // handle resize
+        window.addEventListener('resize', ()=>{
+          width = innerWidth; height = innerHeight;
+          canvases.forEach(c=>{ c.width = width; c.height = height; });
+          initParticles();
+        });
+
+        // small interactive nudge on mouse move (subtle)
+        window.addEventListener('mousemove', (e)=>{
+          const mx = e.clientX/width - 0.5; const my = e.clientY/height - 0.5;
+          particles.forEach((p,i)=>{
+            p.x += mx*0.8*(i%3);
+            p.y += my*0.8*(i%5);
+          });
+        });
+
+      })();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  </body>
+</html>
